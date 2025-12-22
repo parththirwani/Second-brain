@@ -27,11 +27,15 @@ export const ProfileSchema = z.object({
   socialLinks: z.object({
     XLink: z.url().optional(),
     InstagramLink: z.url().optional(),
-    Whatsapp: z.string().optional,
+    Whatsapp: z.string().optional(),
     MediumLink: z.url().optional()
   }),
   bio: z.string().min(3,{message: "Bio should be atleast 3 chars"}).max(300,{message: "Bio should be max 300 chars"}).optional(),
   publicProfile: z.boolean().default(false)
+})
+
+export const ProfileStatusSchema = z.object({
+  publicProfile: z.boolean()
 })
 
 export const ProfileUpdateSchema = ProfileSchema.partial();

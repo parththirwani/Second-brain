@@ -26,6 +26,7 @@ const documentSchema = new mongoose.Schema({
     required: true,
     index: true
   },
+
   type: {
     type: String,
     required: true,
@@ -63,7 +64,7 @@ const documentSchema = new mongoose.Schema({
     type: String,
     unique: true,
     sparse: true,
-    required: false  
+    required: false 
   }
 });
 
@@ -73,7 +74,7 @@ const profileSchema = new mongoose.Schema({
     ref: "User",
     required: true,
     unique: true,
-    index: true
+    index: true,
   },
   username: {  
     type: String,
@@ -98,7 +99,8 @@ const profileSchema = new mongoose.Schema({
       MediumLink: { type: String, required: false }
     },
     required: false,
-    default: {}
+    default: {},
+    _id: false  
   },
   bio: {
     type: String,
@@ -111,7 +113,7 @@ const profileSchema = new mongoose.Schema({
     default: false
   }
 },
-{ timestamps: true }
+{ timestamps: true}
 );
 
 export const UserModel = mongoose.model("User", userSchema);

@@ -2,7 +2,7 @@ import express from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { UserSchema } from "../../model/schema";
-import { UserModel } from "../../model/dbSchema";
+import { ProfileModel, UserModel } from "../../model/dbSchema";
 
 const router = express.Router();
 
@@ -27,21 +27,38 @@ router.post("/signup", async (req, res) => {
 });
 
 //POST : Signin endpoint
+// POST /signin
 router.post("/signin", async (req, res) => {
   const parsed = UserSchema.safeParse(req.body);
   if (!parsed.success) {
     return res.status(400).json({ message: "Invalid inputs" });
   }
 
-  const user = await UserModel.findOne({ username: parsed.data.username });
+  const { username, password } = parsed.data;
+
+  const user = await UserModel.findOne({ username });
   if (!user) {
     return res.status(403).json({ message: "User not found" });
   }
 
-  const valid = await bcrypt.compare(parsed.data.password, user.password);
+  const valid = await bcrypt.compare(password, user.password);
   if (!valid) {
     return res.status(403).json({ message: "Wrong password" });
   }
+
+  await ProfileModel.findOneAndUpdate(
+    { userId: user._id },
+    {
+      userId: user._id,
+      username: user.username,  // Sync username
+      publicProfile: false,     // Default to private
+    },
+    {
+      upsert: true,             
+      setDefaultsOnInsert: true 
+    }
+  );
+  // =========================================
 
   const token = jwt.sign(
     { userId: user._id },

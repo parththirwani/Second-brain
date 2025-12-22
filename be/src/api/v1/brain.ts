@@ -18,7 +18,7 @@ router.put("/share/:id", authMiddleware, async (req, res) => {
   await doc.save();
 
   res.json({
-    sharableLink: `http://localhost:3000/api/v1/brain/${doc.sharableId}`
+    sharableLink: `http://localhost:3000/brain/${doc.sharableId}`
   });
 });
 
