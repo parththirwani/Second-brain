@@ -1,6 +1,6 @@
 import express from "express";
 import { DocumentSchema, DocumentUpdateSchema } from "../../model/schema";
-import { DocumentModel } from "../../model/user";
+import { DocumentModel } from "../../model/dbSchema";
 import { authMiddleware } from "../../middleware/authMiddleware";
 import { normalizeTags } from "../../utils/normalizeTags";
 
@@ -67,7 +67,7 @@ router.patch("/:id", authMiddleware, async (req, res) => {
     return res.status(411).json({ message: "Error in inputs" });
   }
 
-  const updates: any = { ...parsedData.data };
+  const updates = { ...parsedData.data };
 
   // Normalize tags only if provided
   if (updates.tags) {

@@ -1,5 +1,5 @@
 import express from "express";
-import { DocumentModel } from "../../model/user";
+import { DocumentModel } from "../../model/dbSchema";
 import { generateUUID } from "../../utils/uuid";
 import { authMiddleware } from "../../middleware/authMiddleware";
 

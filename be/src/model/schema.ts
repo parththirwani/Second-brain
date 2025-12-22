@@ -9,6 +9,7 @@ export const DocumentSchema = z.object({
   type: z.enum(["Document", "Tweet", "Youtube", "Link"]),
   link: z.url(),
   title: z.string().min(3,{message: "Title should be atleast 3 chars"}).max(64,{message: "Title should be max 64 chars"}),
+  description : z.string().min(3,{message: "Title should be atleast 3 chars"}).max(300,{message: "Title should be max 300 chars"}).optional(),
   tags: z.array(
     z.string()
       .min(1)

@@ -45,6 +45,12 @@ const documentSchema = new mongoose.Schema({
     minLength: 3,
     maxLength: 64
   },
+    description: {
+    type: String,
+    required: false,
+    minLength: 3,
+    maxLength: 300
+  },
   tags: {
   type: [String],
   index: true
