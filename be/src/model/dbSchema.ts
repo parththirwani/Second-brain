@@ -21,11 +21,11 @@ const userSchema = new mongoose.Schema(
 
 const documentSchema = new mongoose.Schema({
   userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-      index: true
-    },
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+    index: true
+  },
   type: {
     type: String,
     required: true,
@@ -42,26 +42,78 @@ const documentSchema = new mongoose.Schema({
   title: {
     type: String,
     required: true,
-    minLength: 3,
-    maxLength: 64
+    minlength: 3,  
+    maxlength: 64  
   },
-    description: {
+  description: {
     type: String,
     required: false,
-    minLength: 3,
-    maxLength: 300
+    minlength: 3,
+    maxlength: 300
   },
   tags: {
-  type: [String],
-  index: true
+    type: [String],
+    index: true
+  },
+  sharable: {
+    type: Boolean,
+    default: false
+  },
+  sharableId: {
+    type: String,
+    unique: true,
+    sparse: true,
+    required: false  
+  }
+});
 
+const profileSchema = new mongoose.Schema({
+  userId: {  
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+    unique: true,
+    index: true
+  },
+  username: {  
+    type: String,
+    required: true,
+    minlength: 5,
+    maxlength: 30,
+    index: true,
+  },
+  profession: {
+    type: String,
+    required: false
+  },
+  avatar: {
+    type: String,
+    required: false 
+  },
+  socialLinks: {
+    type: {
+      XLink: { type: String, required: false },          
+      InstagramLink: { type: String, required: false },
+      Whatsapp: { type: String, required: false },       
+      MediumLink: { type: String, required: false }
+    },
+    required: false,
+    default: {}
+  },
+  bio: {
+    type: String,
+    required: false,
+    minlength: 3,
+    maxlength: 300
+  },
+  publicProfile: {
+    type: Boolean,
+    default: false
+  }
 },
-sharable: {
-  type: Boolean,
-  default: false
-},
-sharableId:{ type: String, unique: true, sparse: true, require: false }
-})
+{ timestamps: true }
+);
 
 export const UserModel = mongoose.model("User", userSchema);
 export const DocumentModel = mongoose.model("Document", documentSchema);
+export const ProfileModel = mongoose.model("Profile", profileSchema);  
