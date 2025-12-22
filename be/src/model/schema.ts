@@ -18,3 +18,5 @@ export const DocumentSchema = z.object({
   sharable: z.boolean().default(false),
   sharableId: z.string().optional()
 })
+
+export const DocumentUpdateSchema = DocumentSchema.partial();

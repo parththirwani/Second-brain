@@ -1,183 +1,22 @@
-import express from "express"
-import { DocumentSchema } from "./schema"
-import mongoose from "mongoose";
-import { DocumentModel } from "./model/user";
+import express from "express";
+import dotenv from "dotenv";
+import { connectDB } from "./model/db";
+import authRoutes from "./api/v1/auth";
+import contentRoutes from "./api/v1/content";
+import brainRoutes from "./api/v1/brain";
 
+dotenv.config();
 
-import crypto from "crypto";
+const app = express();
+app.use(express.json());
 
-const generateUUID = () => {
-  return crypto.randomUUID(); 
-};
+connectDB();
 
+/* API V1 ROUTES */
+app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/content", contentRoutes);
+app.use("/api/v1/brain", brainRoutes);
 
-const app = express()
-app.use(express.json())
-
-
-mongoose.connect(process.env.MONGO_URI || "")
-  .then(() => {
-    console.log("MongoDB connected");
-  })
-  .catch(err => {
-    console.error("MongoDB connection error:", err);
-  });
-
-const normalizeTags = (tags: string[]) => {
-  return [...new Set(
-    tags.map(tag =>
-      tag.toLowerCase().trim()
-    )
-  )];
-};
-
-
-app.post("/content",async (req,res)=>{
-    const parsedData = DocumentSchema.safeParse(req.body)
-
-    if(!parsedData.success){
-        res.status(411).json({ message: "Error in inputs" })
-        return;
-    }
-
-    const document = parsedData.data;
-    const normalizedTags = normalizeTags(document.tags);
-    
-    const addedDocument = await DocumentModel.create({
-        title: document.title,
-        link: document.link,
-        type: document.type,
-        tags: normalizedTags
-    })
-
-    res.status(200).json({message: `Document added ${addedDocument}`})
-})
-
-app.get("/content", async (req, res) => {
-  try {
-    const allDocuments = await DocumentModel.find({});
-    
-    return res.status(200).json({
-      message: "All the documents retrieved",
-      documents: allDocuments
-    });
-
-  } catch (err) {
-    console.error(err);
-
-    return res.status(500).json({
-      message: "Failed to retrieve documents"
-    });
-  }
+app.listen(3000, () => {
+  console.log("Server running on port 3000");
 });
-
-app.delete("/content/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const deletedDocument = await DocumentModel.findByIdAndDelete(id);
-
-    if (!deletedDocument) {
-      return res.status(404).json({
-        message: "Document not found"
-      });
-    }
-
-    return res.status(200).json({
-      message: "Document deleted successfully",
-      document: deletedDocument
-    });
-
-  } catch (err) {
-    console.error(err);
-
-    return res.status(500).json({
-      message: "Failed to delete document"
-    });
-  }
-});
-
-app.put ("/brain/share/:id", async (req,res)=>{
-    try {
-    const { id } = req.params;
-
-    const foundDocument = await DocumentModel.findById(id);
-
-    if(!foundDocument){
-      return res.status(404).json({message : "Document not found"})
-    }
-    
-    if(!foundDocument.sharable){
-    foundDocument.sharable = true;
-    foundDocument.sharableId = generateUUID();
-    }
-
-    await foundDocument.save();
-
-    return res.status(200).json({
-      message: "Document updated successfully",
-      sharableLink: `http://localhost:3000/brain/${foundDocument.sharableId}`
-    });
-
-  }catch(err){
-    console.error(err);
-    return res.status(500).json({
-      message: "Failed to update document"
-    });
-  }
-})
-
-app.put ("/brain/unshare/:id", async (req,res)=>{
-    try {
-    const { id } = req.params;
-
-    const foundDocument = await DocumentModel.findById(id);
-
-    if(!foundDocument){
-      return res.status(404).json({message : "Document not found"})
-    }
-    
-    if(foundDocument.sharable){
-    foundDocument.sharable = false;
-    foundDocument.sharableId = undefined;
-    }
-
-    await foundDocument.save();
-
-    return res.status(200).json({
-      message: "Document no longer sharable"
-    });
-
-  }catch(err){
-    console.error(err);
-    return res.status(500).json({
-      message: "Failed to update document"
-    });
-  }
-})
-
-app.get("/brain/:uuid",async (req,res)=>{
-    try {
-    const { uuid } = req.params;
-
-    const foundDocument = await DocumentModel.findOne({
-      sharableId: uuid,
-      sharable: true
-    });
-
-    if(!foundDocument){
-      return res.status(404).json({message : "Invalid link"})
-    }
-
-    res.status(200).json({message: "Document retrieved", document: foundDocument})
-
-}catch(err){
-    console.error(err);
-    return res.status(500).json({
-      message: "Failed to get document"
-    });
-  }
-})
-
-
-app.listen(3000)
