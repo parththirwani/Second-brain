@@ -2,8 +2,18 @@ import express from "express"
 import { DocumentSchema } from "./schema"
 import mongoose from "mongoose";
 import { DocumentModel } from "./model/user";
+
+
+import crypto from "crypto";
+
+const generateUUID = () => {
+  return crypto.randomUUID(); 
+};
+
+
 const app = express()
 app.use(express.json())
+
 
 mongoose.connect(process.env.MONGO_URI || "")
   .then(() => {
@@ -86,6 +96,88 @@ app.delete("/content/:id", async (req, res) => {
     });
   }
 });
+
+app.put ("/brain/share/:id", async (req,res)=>{
+    try {
+    const { id } = req.params;
+
+    const foundDocument = await DocumentModel.findById(id);
+
+    if(!foundDocument){
+      return res.status(404).json({message : "Document not found"})
+    }
+    
+    if(!foundDocument.sharable){
+    foundDocument.sharable = true;
+    foundDocument.sharableId = generateUUID();
+    }
+
+    await foundDocument.save();
+
+    return res.status(200).json({
+      message: "Document updated successfully",
+      sharableLink: `http://localhost:3000/brain/${foundDocument.sharableId}`
+    });
+
+  }catch(err){
+    console.error(err);
+    return res.status(500).json({
+      message: "Failed to update document"
+    });
+  }
+})
+
+app.put ("/brain/unshare/:id", async (req,res)=>{
+    try {
+    const { id } = req.params;
+
+    const foundDocument = await DocumentModel.findById(id);
+
+    if(!foundDocument){
+      return res.status(404).json({message : "Document not found"})
+    }
+    
+    if(foundDocument.sharable){
+    foundDocument.sharable = false;
+    foundDocument.sharableId = undefined;
+    }
+
+    await foundDocument.save();
+
+    return res.status(200).json({
+      message: "Document no longer sharable"
+    });
+
+  }catch(err){
+    console.error(err);
+    return res.status(500).json({
+      message: "Failed to update document"
+    });
+  }
+})
+
+app.get("/brain/:uuid",async (req,res)=>{
+    try {
+    const { uuid } = req.params;
+
+    const foundDocument = await DocumentModel.findOne({
+      sharableId: uuid,
+      sharable: true
+    });
+
+    if(!foundDocument){
+      return res.status(404).json({message : "Invalid link"})
+    }
+
+    res.status(200).json({message: "Document retrieved", document: foundDocument})
+
+}catch(err){
+    console.error(err);
+    return res.status(500).json({
+      message: "Failed to get document"
+    });
+  }
+})
 
 
 app.listen(3000)

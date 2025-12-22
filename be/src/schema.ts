@@ -14,5 +14,7 @@ export const DocumentSchema = z.object({
       .min(1)
       .max(32)
       .regex(/^[a-zA-Z0-9-_]+$/, "Invalid tag format")
-  )
+  ),
+  sharable: z.boolean().default(false),
+  sharableId: z.string().optional()
 })

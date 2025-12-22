@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { maxLength, minLength, required } from "zod/mini";
+const { Schema } = mongoose;
 
 const userSchema = new mongoose.Schema(
   {
@@ -43,8 +43,12 @@ const documentSchema = new mongoose.Schema({
   type: [String],
   index: true
 
-}
-
+},
+sharable: {
+  type: Boolean,
+  default: false
+},
+sharableId:{ type: String, unique: true, sparse: true, require: false }
 })
 
 export const UserModel = mongoose.model("User", userSchema);
