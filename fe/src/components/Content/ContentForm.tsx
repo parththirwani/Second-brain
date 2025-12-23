@@ -1,18 +1,17 @@
 import React, { useState } from 'react';
-import { Save } from 'lucide-react';
-import type { Document } from '../lib/types';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
-import { Textarea } from './ui/textarea';
+import type { Document } from '../../lib/types';
+import { Button } from '../ui/button';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
+import { Textarea } from '../ui/textarea';
 
-interface DocumentFormProps {
+interface ContentFormProps {
   document?: Document | null;
   onSave: (data: any) => void;
   onCancel: () => void;
 }
 
-export const DocumentForm: React.FC<DocumentFormProps> = ({ 
+export const ContentForm: React.FC<ContentFormProps> = ({ 
   document, 
   onSave, 
   onCancel 
@@ -25,7 +24,8 @@ export const DocumentForm: React.FC<DocumentFormProps> = ({
     tags: document?.tags?.join(', ') || '',
   });
 
-  const handleSubmit = () => {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
     onSave({
       ...formData,
       tags: formData.tags.split(',').map(t => t.trim()).filter(Boolean),
@@ -33,14 +33,15 @@ export const DocumentForm: React.FC<DocumentFormProps> = ({
   };
 
   return (
-    <div className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
         <Label htmlFor="type">Type</Label>
         <select
           id="type"
           value={formData.type}
           onChange={(e) => setFormData({ ...formData, type: e.target.value as any })}
-          className="w-full h-10 rounded-md border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full h-9 rounded-md border border-input bg-transparent px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+          required
         >
           <option value="Link">Link</option>
           <option value="Document">Document</option>
@@ -57,6 +58,7 @@ export const DocumentForm: React.FC<DocumentFormProps> = ({
           onChange={(e) => setFormData({ ...formData, title: e.target.value })}
           minLength={3}
           maxLength={64}
+          required
         />
       </div>
 
@@ -67,6 +69,7 @@ export const DocumentForm: React.FC<DocumentFormProps> = ({
           type="url"
           value={formData.link}
           onChange={(e) => setFormData({ ...formData, link: e.target.value })}
+          required
         />
       </div>
 
@@ -77,7 +80,7 @@ export const DocumentForm: React.FC<DocumentFormProps> = ({
           value={formData.description}
           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
           maxLength={300}
-          className="min-h-25"
+          rows={3}
         />
       </div>
 
@@ -92,14 +95,15 @@ export const DocumentForm: React.FC<DocumentFormProps> = ({
       </div>
 
       <div className="flex gap-3 pt-2">
-        <Button onClick={handleSubmit} className="flex-1">
-          <Save size={18} />
+        <Button type="submit" className="flex-1">
           {document ? 'Update' : 'Create'}
         </Button>
-        <Button variant="secondary" onClick={onCancel}>
+        <Button type="button" variant="secondary" onClick={onCancel}>
           Cancel
         </Button>
       </div>
-    </div>
+    </form>
   );
 };
+
+export default ContentForm;

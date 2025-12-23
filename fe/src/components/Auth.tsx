@@ -1,10 +1,9 @@
+import { useAuth } from '@/contexts/AuthContext';
 import React, { useState } from 'react';
-import { FileText } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
 import { Label } from './ui/label';
-import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
+import { Input } from './ui/input';
+import { Button } from './ui/button';
+
 
 export const AuthScreen: React.FC = () => {
   const [isSignup, setIsSignup] = useState(false);
@@ -12,18 +11,21 @@ export const AuthScreen: React.FC = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
   const { signin, signup } = useAuth();
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     setError('');
+    setSuccessMessage('');
     setLoading(true);
 
     try {
       if (isSignup) {
         await signup(username, password);
+        setSuccessMessage('Account created successfully! Please sign in.');
         setIsSignup(false);
         setPassword('');
-        alert('Signup successful! Please sign in.');
       } else {
         await signin(username, password);
       }
@@ -35,21 +37,22 @@ export const AuthScreen: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-secondary flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="inline-block p-3 bg-blue-600 rounded-2xl mb-4">
-            <FileText size={32} className="text-white" />
+          <div className="inline-flex items-center justify-center w-12 h-12 bg-primary rounded mb-4">
+            <span className="text-white font-bold text-xl">SB</span>
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">Second Brain</h1>
-          <p className="text-gray-400">Your personal knowledge management system</p>
+          <h1 className="text-3xl font-bold mb-2">Second Brain</h1>
+          <p className="text-muted-foreground">Your personal knowledge hub</p>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>{isSignup ? 'Create Account' : 'Welcome Back'}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
+        <div className="bg-white rounded-lg border border-border p-8">
+          <h2 className="text-xl font-semibold mb-6">
+            {isSignup ? 'Create Account' : 'Sign In'}
+          </h2>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="username">Username</Label>
               <Input
@@ -60,6 +63,7 @@ export const AuthScreen: React.FC = () => {
                 onChange={(e) => setUsername(e.target.value)}
                 minLength={5}
                 maxLength={30}
+                required
               />
             </div>
 
@@ -72,17 +76,24 @@ export const AuthScreen: React.FC = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 minLength={8}
+                required
               />
             </div>
 
             {error && (
-              <div className="p-3 bg-red-500/10 border border-red-500/50 rounded-lg text-red-400 text-sm">
+              <div className="p-3 bg-red-50 border border-red-200 rounded text-red-600 text-sm">
                 {error}
               </div>
             )}
 
+            {successMessage && (
+              <div className="p-3 bg-green-50 border border-green-200 rounded text-green-600 text-sm">
+                {successMessage}
+              </div>
+            )}
+
             <Button 
-              onClick={handleSubmit} 
+              type="submit"
               className="w-full" 
               disabled={loading}
             >
@@ -91,18 +102,22 @@ export const AuthScreen: React.FC = () => {
 
             <div className="text-center">
               <button
+                type="button"
                 onClick={() => {
                   setIsSignup(!isSignup);
                   setError('');
+                  setSuccessMessage('');
                 }}
-                className="text-blue-400 hover:text-blue-300 text-sm transition-colors"
+                className="text-sm text-primary hover:underline"
               >
                 {isSignup ? 'Already have an account? Sign in' : "Don't have an account? Sign up"}
               </button>
             </div>
-          </CardContent>
-        </Card>
+          </form>
+        </div>
       </div>
     </div>
   );
 };
+
+export default AuthScreen;

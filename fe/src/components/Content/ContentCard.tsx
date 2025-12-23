@@ -1,18 +1,17 @@
 import React from 'react';
-import { FileText, Youtube, Twitter, LinkIcon, Edit2, Trash2, Share2, Eye, ExternalLink } from 'lucide-react';
-import type { Document } from '../lib/types';
-import { Card } from './ui/card';
-import { Button } from './ui/button';
+import { FileText, Youtube, Twitter, Link as LinkIcon, Edit2, Trash2, Share2, Eye, ExternalLink } from 'lucide-react';
+import type { Document } from '../../lib/types';
+import { Button } from '../ui/button';
 
-interface DocumentCardProps {
+interface ContentCardProps {
   document: Document;
   onEdit: (doc: Document) => void;
-  onDelete: (id: string) => void;
+  onDelete: (doc: Document) => void;
   onShare: (doc: Document) => void;
   onUnshare: (doc: Document) => void;
 }
 
-export const DocumentCard: React.FC<DocumentCardProps> = ({
+export const ContentCard: React.FC<ContentCardProps> = ({
   document,
   onEdit,
   onDelete,
@@ -29,13 +28,11 @@ export const DocumentCard: React.FC<DocumentCardProps> = ({
   const Icon = icons[document.type];
 
   return (
-    <Card className="p-5 hover:border-gray-600 transition-all group hover:shadow-xl">
+    <div className="bg-white border border-border rounded-lg p-4 hover:shadow-md transition-shadow">
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-2">
-          <div className="p-2 bg-gray-700 rounded-lg">
-            <Icon size={20} className="text-blue-400" />
-          </div>
-          <span className="text-xs font-medium text-gray-400 uppercase tracking-wide">
+          <Icon className="h-4 w-4 text-muted-foreground" />
+          <span className="text-xs text-muted-foreground uppercase tracking-wide">
             {document.type}
           </span>
         </div>
@@ -43,49 +40,51 @@ export const DocumentCard: React.FC<DocumentCardProps> = ({
           {document.sharable ? (
             <Button
               variant="ghost"
-              size="icon"
+              size="icon-sm"
               onClick={() => onUnshare(document)}
-              className="h-8 w-8 text-green-400 hover:text-green-300"
+              className="text-green-600 hover:text-green-700 hover:bg-green-50"
               title="Unshare"
             >
-              <Eye size={16} />
+              <Eye className="h-4 w-4" />
             </Button>
           ) : (
             <Button
               variant="ghost"
-              size="icon"
+              size="icon-sm"
               onClick={() => onShare(document)}
-              className="h-8 w-8"
+              className="hover:bg-muted"
               title="Share"
             >
-              <Share2 size={16} />
+              <Share2 className="h-4 w-4" />
             </Button>
           )}
           <Button
             variant="ghost"
-            size="icon"
+            size="icon-sm"
             onClick={() => onEdit(document)}
-            className="h-8 w-8"
+            className="hover:bg-muted"
+            title="Edit"
           >
-            <Edit2 size={16} />
+            <Edit2 className="h-4 w-4" />
           </Button>
           <Button
             variant="ghost"
-            size="icon"
-            onClick={() => onDelete(document._id)}
-            className="h-8 w-8 text-red-400 hover:text-red-300"
+            size="icon-sm"
+            onClick={() => onDelete(document)}
+            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+            title="Delete"
           >
-            <Trash2 size={16} />
+            <Trash2 className="h-4 w-4" />
           </Button>
         </div>
       </div>
 
-      <h3 className="text-lg font-semibold text-white mb-2 line-clamp-2">
+      <h3 className="text-base font-semibold mb-2 line-clamp-2">
         {document.title}
       </h3>
       
       {document.description && (
-        <p className="text-sm text-gray-400 mb-3 line-clamp-2">
+        <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
           {document.description}
         </p>
       )}
@@ -94,9 +93,9 @@ export const DocumentCard: React.FC<DocumentCardProps> = ({
         href={document.link}
         target="_blank"
         rel="noopener noreferrer"
-        className="text-sm text-blue-400 hover:text-blue-300 flex items-center gap-1 mb-3 truncate"
+        className="text-sm text-primary hover:underline flex items-center gap-1 mb-3 truncate"
       >
-        <ExternalLink size={14} />
+        <ExternalLink className="h-3 w-3 shrink-0" />
         <span className="truncate">{document.link}</span>
       </a>
 
@@ -105,13 +104,15 @@ export const DocumentCard: React.FC<DocumentCardProps> = ({
           {document.tags.map((tag, idx) => (
             <span 
               key={idx} 
-              className="px-2.5 py-1 bg-gray-700 text-gray-300 text-xs rounded-full"
+              className="px-2 py-0.5 bg-secondary text-muted-foreground text-xs rounded border border-border"
             >
               #{tag}
             </span>
           ))}
         </div>
       )}
-    </Card>
+    </div>
   );
 };
+
+export default ContentCard;

@@ -1,4 +1,4 @@
-export interface Document {
+export interface ContentDocument {
   _id: string;
   userId: string;
   type: 'Document' | 'Tweet' | 'Youtube' | 'Link';
@@ -28,4 +28,3 @@ export interface Profile {
   bio?: string;
   publicProfile: boolean;
 }
-
